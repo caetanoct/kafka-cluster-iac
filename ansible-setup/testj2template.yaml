@@ -1,0 +1,8 @@
+---
+# ansible-playbook testj2template.yaml --check --diff --connection=local
+- hosts: localhost
+  tasks:
+  - name: test zookeper config j2 template
+    template: src=zookeeper.config.j2 dest=test.conf
+  - name: test kafka broker confi j2 template
+    template: src=kafka-broker.config.j2 dest=test.conf

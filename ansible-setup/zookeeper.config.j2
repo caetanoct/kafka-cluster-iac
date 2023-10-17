@@ -1,0 +1,8 @@
+tickTime=2000
+dataDir=/var/lib/zookeeper
+clientPort=2181
+initLimit=20
+syncLimit=5
+{% for key in hostvars %}
+server.{{loop.index}}={{hostvars[key]["internal_ip"]}}:2888:3888
+{% endfor %}

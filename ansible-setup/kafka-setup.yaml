@@ -1,0 +1,45 @@
+---
+- name: Setup Kafka Instances
+  hosts: kafka-brokers
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: Update apt indexes
+      apt:
+        update_cache: yes
+
+    - name: Install Java
+      apt:
+        name: openjdk-17-jdk-headless
+        state: latest
+    - name: Download Kafka
+      get_url:
+        dest: /tmp/kafka.tgz
+        url: https://dlcdn.apache.org/kafka/3.6.0/kafka_2.13-3.6.0.tgz
+    - name: Unarchive Kafka
+      unarchive:
+        src: /tmp/kafka.tgz
+        remote_src: true
+        dest: /opt
+    - name: Send Broker Config to Remote
+      template:
+        src: ./kafka-broker.config.j2
+        dest: /opt/broker-config.properties 
+    - name: Send ZooKeeper Ensemble Config to Remote
+      template:
+        src: ./zookeeper.config.j2
+        dest: /opt/zookeeper-config.properties
+    - name: Create myid zookeeper file
+      shell:
+        cmd: mkdir -p /var/lib/zookeeper && echo {{play_hosts.index(inventory_hostname)+ 1}} > /var/lib/zookeeper/myid
+    - name: Install zookeeper unit files
+      template:
+        src: zookeeper.service.j2
+        dest: /etc/systemd/system/zookeeper.service
+    - name: Install kafka unit files
+      template:
+        src: kafka.service.j2
+        dest: /etc/systemd/system/kafka.service
+    - name: Enable unit files
+      shell:
+        cmd: systemctl daemon-reload && systemctl enable kafka.service && systemctl enable zookeeper.service && systemctl start zookeeper.service kafka.service

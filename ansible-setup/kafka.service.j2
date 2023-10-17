@@ -1,0 +1,10 @@
+[Unit]
+Description=Kafka Service
+After=zookeeper.service
+
+[Service]
+ExecStart=/opt/kafka_2.13-3.6.0/bin/kafka-server-start.sh /opt/broker-config.properties
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

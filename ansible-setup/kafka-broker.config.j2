@@ -1,0 +1,4 @@
+broker.id={{groups["kafka-brokers"].index(inventory_hostname)}}
+log.dirs=/tmp/kafka-logs
+log.retention.hours=168
+zookeeper.connect={% for key in hostvars %}{{hostvars[key]["internal_ip"]}}:2181{{"," if not loop.last}}{% endfor %}
